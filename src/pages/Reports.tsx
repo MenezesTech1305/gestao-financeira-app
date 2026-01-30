@@ -83,7 +83,7 @@ export function Reports() {
 
         // Dados da Tabela
         const tableData = rawData.map(item => [
-            new Date(item.date).toLocaleDateString('pt-BR'),
+            item.date.split('T')[0].split('-').reverse().join('/'),
             item.description,
             item.categories?.name || '-',
             new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(item.amount)

@@ -88,7 +88,7 @@ export const Transactions = () => {
                                 transactions.map((t) => (
                                     <tr key={t.id} className="border-b border-slate-700/30 hover:bg-white/5 transition-colors">
                                         <td className="p-4 text-slate-300">
-                                            {format(new Date(t.date), 'dd/MM/yyyy', { locale: ptBR })}
+                                            {t.date.split('T')[0].split('-').reverse().join('/')}
                                         </td>
                                         <td className="p-4 text-white font-medium">{t.description || 'Sem descrição'}</td>
                                         <td className="p-4 text-slate-400 text-sm">
