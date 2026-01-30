@@ -1,12 +1,10 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { ArrowUp, ArrowDown, Wallet, Plus, BarChart3, Bell } from 'lucide-react';
 import { TransactionModal } from '../components/TransactionModal';
 import { FinancialChart } from '../components/FinancialChart';
-import { format, isSameDay, parseISO, addDays, isBefore, isAfter } from 'date-fns';
+import { format } from 'date-fns';
 import { useAuth } from '../contexts/AuthContext';
-import clsx from 'clsx';
-import { createPortal } from 'react-dom';
 
 export const Dashboard = () => {
     const { user } = useAuth();
