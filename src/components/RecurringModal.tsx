@@ -35,6 +35,19 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
                 .select('*')
                 .eq('type', 'expense')
                 .or(`user_id.is.null,user_id.eq.${user?.id}`);
+
+            // Auto-add 'Empresa' if missing in expense categories
+            if (data && !data.find(c => c.name === 'Empresa')) {
+                await supabase.from('categories').insert({
+                    user_id: user?.id,
+                    name: 'Empresa',
+                    type: 'expense'
+                });
+                // Recursive call to get the new list including Empresa
+                fetchCategories();
+                return;
+            }
+
             setCategories(data || []);
 
             // Se for novo e tiver categorias, seleciona a primeira
@@ -46,6 +59,11 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
         }
     };
 
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\D/g, ''); // Remove non-digits
+        setAmount(value);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -54,7 +72,7 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
             const payload = {
                 user_id: user?.id,
                 title,
-                amount: parseFloat(amount),
+                amount: Number(amount) / 100, // Convert string "2500" to 25.00
                 category_id: categoryId,
                 day_of_month: parseInt(dayOfMonth),
                 active: true
@@ -131,13 +149,13 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold group-focus-within:text-blue-400 transition-colors">R$</span>
                                     <input
-                                        type="number"
-                                        step="0.01"
+                                        type="text"
+                                        inputMode="numeric"
                                         required
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
+                                        value={amount ? (Number(amount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
+                                        onChange={handleAmountChange}
                                         className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
-                                        placeholder="0.00"
+                                        placeholder="0,00"
                                     />
                                 </div>
                             </div>

@@ -21,12 +21,17 @@ const COLORS = [
 export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  
+
   const [title, setTitle] = useState(goal?.title || '');
   const [targetAmount, setTargetAmount] = useState(goal?.target_amount || '');
   const [currentAmount, setCurrentAmount] = useState(goal?.current_amount || '0');
   const [deadline, setDeadline] = useState(goal?.deadline || '');
   const [color, setColor] = useState(goal?.color || COLORS[0].value);
+
+  const handleAmountChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '');
+    setter(value);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,14 +41,15 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
       const payload = {
         user_id: user?.id,
         title,
-        target_amount: parseFloat(targetAmount),
-        current_amount: parseFloat(currentAmount),
+        target_amount: Number(targetAmount) / 100,
+        current_amount: Number(currentAmount) / 100,
         deadline: deadline || null,
         color
       };
 
+      // ... rest of logic
       let error;
-      
+
       if (goal?.id) {
         const { error: err } = await supabase
           .from('goals')
@@ -58,7 +64,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
       }
 
       if (error) throw error;
-      
+
       onSuccess();
       onClose();
     } catch (err: any) {
@@ -68,58 +74,30 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#1e293b]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg bg-[${color}]/20`} style={{ color: color }}>
-              <Target size={24} />
-            </div>
-            <h2 className="text-xl font-bold text-white">
-              {goal ? 'Editar Meta' : 'Nova Meta'}
-            </h2>
-          </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
-            <X size={24} />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1">Título</label>
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-slate-600"
-              placeholder="Ex: Viagem para Europa"
-            />
-          </div>
+  // ... (render)
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Meta (R$)</label>
               <input
-                type="number"
-                step="0.01"
+                type="text"
+                inputMode="numeric"
                 required
-                value={targetAmount}
-                onChange={(e) => setTargetAmount(e.target.value)}
+                value={targetAmount ? (Number(targetAmount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
+                onChange={handleAmountChange(setTargetAmount)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                placeholder="0.00"
+                placeholder="0,00"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Guardado (R$)</label>
               <input
-                type="number"
-                step="0.01"
-                value={currentAmount}
-                onChange={(e) => setCurrentAmount(e.target.value)}
+                type="text"
+                 inputMode="numeric"
+                value={currentAmount ? (Number(currentAmount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
+                onChange={handleAmountChange(setCurrentAmount)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
-                placeholder="0.00"
+                placeholder="0,00"
               />
             </div>
           </div>
@@ -167,8 +145,8 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
               {loading ? 'Salvando...' : 'Salvar Meta'}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </form >
+      </div >
+    </div >
   );
 }

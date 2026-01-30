@@ -62,13 +62,17 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
         if (data) {
             setCategories(data);
 
-            // Auto-migration: Check if 'Saúde' exists for expense, if not, create it
-            if (type === 'expense' && !data.find(c => c.name === 'Saúde')) {
-                await supabase.from('categories').insert({
-                    user_id: user?.id,
-                    name: 'Saúde',
-                    type: 'expense'
-                });
+            // Auto-migration: Check if 'Saúde' or 'Empresa' exists for expense, if not, create them
+            const missingSaude = type === 'expense' && !data.find(c => c.name === 'Saúde');
+            const missingEmpresa = type === 'expense' && !data.find(c => c.name === 'Empresa');
+
+            if (missingSaude || missingEmpresa) {
+                if (missingSaude) {
+                    await supabase.from('categories').insert({ user_id: user?.id, name: 'Saúde', type: 'expense' });
+                }
+                if (missingEmpresa) {
+                    await supabase.from('categories').insert({ user_id: user?.id, name: 'Empresa', type: 'expense' });
+                }
                 // Refresh
                 fetchCategories();
                 return;
@@ -82,7 +86,7 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
 
     const seedCategories = async () => {
         const defaultCategories = type === 'expense'
-            ? ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde']
+            ? ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde', 'Empresa']
             : ['Salário', 'Freelance', 'Investimentos'];
 
         const inserts = defaultCategories.map(name => ({
