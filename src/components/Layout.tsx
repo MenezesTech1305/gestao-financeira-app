@@ -24,7 +24,6 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     ];
 
     return (
-    return (
         <div className="min-h-screen custom-bg text-white flex flex-col md:flex-row">
             {/* Mobile Header */}
             <div className="md:hidden flex items-center justify-between p-4 glass sticky top-0 z-50">
