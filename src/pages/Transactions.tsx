@@ -3,8 +3,7 @@ import { supabase } from '../services/supabase';
 import { TransactionModal } from '../components/TransactionModal';
 import { Plus, Trash2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+
 
 interface Transaction {
     id: string;

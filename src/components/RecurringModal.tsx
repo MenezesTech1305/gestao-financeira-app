@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Save, Repeat, Tag, Calendar, DollarSign, AlignLeft } from 'lucide-react';
+import { X, Save, Repeat, Tag, Calendar, AlignLeft } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
