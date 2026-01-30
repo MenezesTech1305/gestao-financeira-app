@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { X, Save, Repeat } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { X, Save, Repeat, Tag, Calendar, DollarSign, AlignLeft } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -21,6 +22,10 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
 
     useEffect(() => {
         fetchCategories();
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
     }, []);
 
     const fetchCategories = async () => {
@@ -81,10 +86,11 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-[#1e293b]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
-                <div className="flex items-center justify-between p-6 border-b border-white/10">
+    return createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in" style={{ animationDuration: '0.2s' }}>
+            <div className="bg-[#1e293b] w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+
+                <div className="p-6 border-b border-slate-700 flex justify-between items-center shrink-0 bg-[#1e293b]">
                     <div className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-blue-500/20 text-blue-400">
                             <Repeat size={24} />
@@ -93,86 +99,110 @@ export function RecurringModal({ onClose, onSuccess, expense }: RecurringModalPr
                             {expense ? 'Editar Conta Fixa' : 'Nova Conta Fixa'}
                         </h2>
                     </div>
-                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+                    <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors p-1 hover:bg-slate-800 rounded-full">
                         <X size={24} />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Nome da Conta</label>
-                        <input
-                            type="text"
-                            required
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all placeholder:text-slate-600"
-                            placeholder="Ex: Aluguel, Internet"
-                        />
-                    </div>
+                <div className="p-6 overflow-y-auto custom-scrollbar bg-[#1e293b]">
+                    <form onSubmit={handleSubmit} className="space-y-6">
 
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Valor (R$)</label>
-                            <input
-                                type="number"
-                                step="0.01"
-                                required
-                                value={amount}
-                                onChange={(e) => setAmount(e.target.value)}
-                                className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                                placeholder="0.00"
-                            />
+                        {/* Nome da Conta */}
+                        <div className="relative group">
+                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">Nome da Conta</label>
+                            <div className="relative">
+                                <AlignLeft className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+                                <input
+                                    type="text"
+                                    required
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
+                                    placeholder="Ex: Aluguel, Internet"
+                                    autoFocus
+                                />
+                            </div>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-300 mb-1">Dia do Vencimento</label>
-                            <input
-                                type="number"
-                                min="1"
-                                max="31"
-                                required
-                                value={dayOfMonth}
-                                onChange={(e) => setDayOfMonth(e.target.value)}
-                                className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
-                            />
+
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Valor */}
+                            <div className="relative group">
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">Valor (R$)</label>
+                                <div className="relative">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold group-focus-within:text-blue-400 transition-colors">R$</span>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        required
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                        placeholder="0.00"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Dia Vencimento */}
+                            <div className="relative group">
+                                <label className="block text-xs font-semibold text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">Dia Vencimento</label>
+                                <div className="relative">
+                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="31"
+                                        required
+                                        value={dayOfMonth}
+                                        onChange={(e) => setDayOfMonth(e.target.value)}
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+                                    />
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-1">Categoria</label>
-                        <select
-                            value={categoryId}
-                            onChange={(e) => setCategoryId(e.target.value)}
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all [&>option]:bg-slate-900"
-                        >
-                            <option value="" disabled>Selecione uma categoria</option>
-                            {categories.map((cat) => (
-                                <option key={cat.id} value={cat.id}>
-                                    {cat.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                        {/* Categoria */}
+                        <div className="relative group">
+                            <label className="block text-xs font-semibold text-slate-400 mb-1.5 ml-1 uppercase tracking-wider">Categoria</label>
+                            <div className="relative">
+                                <Tag className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+                                <select
+                                    value={categoryId}
+                                    onChange={(e) => setCategoryId(e.target.value)}
+                                    className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3.5 pl-12 pr-10 text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all appearance-none cursor-pointer truncate"
+                                >
+                                    <option value="" disabled>Selecione uma categoria</option>
+                                    {categories.map((cat) => (
+                                        <option key={cat.id} value={cat.id}>
+                                            {cat.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div className="pt-4 flex justify-end gap-3">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                            <Save size={18} />
-                            {loading ? 'Salvando...' : 'Salvar Conta'}
-                        </button>
-                    </div>
-                </form>
+                        <div className="pt-2 flex justify-end gap-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="px-5 py-3 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-blue-500/40 active:scale-[0.98] flex items-center justify-center gap-2"
+                            >
+                                {loading ? <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div> : <><Save size={20} /> Salvar Conta</>}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
