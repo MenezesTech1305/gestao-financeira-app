@@ -161,7 +161,7 @@ export function Reports() {
                                         ))}
                                     </Pie>
                                     <Tooltip
-                                        formatter={(value: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)}
+                                        formatter={(value: number | undefined) => [new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value || 0), 'Valor']}
                                         contentStyle={{ backgroundColor: '#1e293b', border: 'none', borderRadius: '8px', color: '#fff' }}
                                     />
                                     <Legend />
