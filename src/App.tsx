@@ -3,7 +3,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Dashboard } from './pages/Dashboard';
-import { Transactions } from './pages/Transactions';
+import { Transactions } from './pages/Transactions'
+import { Goals } from './pages/Goals';
+import { Recurring } from './pages/Recurring';
+import { Reports } from './pages/Reports';
 import { Layout } from './components/Layout';
 
 // Componente para rotas protegidas
@@ -38,6 +41,24 @@ function App() {
           <Route path="/transactions" element={
             <PrivateRoute>
               <Transactions />
+            </PrivateRoute>
+          } />
+
+          <Route path="/goals" element={
+            <PrivateRoute>
+              <Goals />
+            </PrivateRoute>
+          } />
+
+          <Route path="/recurring" element={
+            <PrivateRoute>
+              <Recurring />
+            </PrivateRoute>
+          } />
+
+          <Route path="/reports" element={
+            <PrivateRoute>
+              <Reports />
             </PrivateRoute>
           } />
 

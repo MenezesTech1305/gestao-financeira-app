@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Wallet, PieChart, LogOut } from 'lucide-react';
+import { LayoutDashboard, Wallet, PieChart, LogOut, Target, Repeat } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import clsx from 'clsx';
 
@@ -17,6 +17,8 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
         { icon: Wallet, label: 'Transações', path: '/transactions' },
+        { icon: Target, label: 'Metas', path: '/goals' },
+        { icon: Repeat, label: 'Contas Fixas', path: '/recurring' },
         { icon: PieChart, label: 'Relatórios', path: '/reports' },
     ];
 
@@ -28,7 +30,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
                     <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
                         <span className="font-bold text-xl">$</span>
                     </div>
-                    <h1 className="text-xl font-bold tracking-tight">Finanças</h1>
+                    <h1 className="text-xl font-bold tracking-tight">MNZ Gestão</h1>
                 </div>
 
                 <nav className="flex-1 space-y-2">
