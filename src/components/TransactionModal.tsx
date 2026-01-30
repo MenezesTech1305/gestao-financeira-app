@@ -75,15 +75,7 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
         if (data) setCategories(data);
     }
 
-    // Currency Mask Logic
-    const formatCurrency = (value: string) => {
-        // Remove non-digits
-        const digits = value.replace(/\D/g, '');
-        // Convert to cents
-        const amount = Number(digits) / 100;
-        // Format as BRL
-        return amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    };
+
 
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value.replace(/\D/g, '');
