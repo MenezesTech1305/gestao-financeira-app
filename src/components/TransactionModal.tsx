@@ -23,7 +23,17 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
     const [amount, setAmount] = useState('');
     const [description, setDescription] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+    // Fix: Use local date instead of UTC to avoid wrong date in the evening (e.g. 9PM+ in Brazil)
+    const getTodayLocal = () => {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const [date, setDate] = useState(getTodayLocal());
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -120,7 +130,7 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
         setAmount('');
         setDescription('');
         setCategoryId('');
-        setDate(new Date().toISOString().split('T')[0]);
+        setDate(getTodayLocal());
     };
 
     if (!isOpen) return null;
