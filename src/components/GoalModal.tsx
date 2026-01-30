@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Save, Target } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -28,6 +29,14 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
   const [deadline, setDeadline] = useState(goal?.deadline || '');
   const [color, setColor] = useState(goal?.color || COLORS[0].value);
 
+  useEffect(() => {
+    // Bloqueia o scroll do corpo da página quando o modal está aberto
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   const handleAmountChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/\D/g, '');
     setter(value);
@@ -47,7 +56,6 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
         color
       };
 
-      // ... rest of logic
       let error;
 
       if (goal?.id) {
@@ -74,10 +82,10 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-[#1e293b]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
-        <div className="flex items-center justify-between p-6 border-b border-white/10">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+      <div className="bg-[#1e293b] w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl relative overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700 bg-[#1e293b] shrink-0">
           <div className="flex items-center gap-3">
             <div className={`p-2 rounded-lg bg-[${color}]/20`} style={{ color: color }}>
               <Target size={24} />
@@ -91,7 +99,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto custom-scrollbar">
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Título</label>
             <input
@@ -99,7 +107,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-slate-600"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-slate-600"
               placeholder="Ex: Viagem para Europa"
             />
           </div>
@@ -113,7 +121,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
                 required
                 value={targetAmount ? (Number(targetAmount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
                 onChange={handleAmountChange(setTargetAmount)}
-                className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 placeholder="0,00"
               />
             </div>
@@ -124,7 +132,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
                 inputMode="numeric"
                 value={currentAmount ? (Number(currentAmount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
                 onChange={handleAmountChange(setCurrentAmount)}
-                className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
                 placeholder="0,00"
               />
             </div>
@@ -136,7 +144,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
               type="date"
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all [color-scheme:dark]"
+              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all [color-scheme:dark]"
             />
           </div>
 
@@ -175,6 +183,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
           </div>
         </form >
       </div >
-    </div >
+    </div >,
+    document.body
   );
 }
