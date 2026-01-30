@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Calendar, Tag, DollarSign, AlignLeft } from 'lucide-react';
+import { X, Calendar, Tag, AlignLeft } from 'lucide-react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import clsx from 'clsx';
@@ -33,32 +33,36 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
     }, [isOpen, type]);
 
     const fetchCategories = async () => {
-        // Buscar categorias padrão ou do usuário
-        // Para simplificar, vou inserir algumas categorias padrão se não existirem na primeira vez,
-        // mas aqui vou apenas listar.
-        // Nota: Em um app real, criariamos uma seed ou permitiria ao usuário criar.
-        // Vou forçar a busca de categorias do tipo selecionado.
-
         const { data } = await supabase
             .from('categories')
             .select('*')
             .eq('type', type)
-            .or(`user_id.eq.${user?.id}`); // AssumindoRLS que permite ler as proprias.
+            .or(`user_id.eq.${user?.id}`);
 
-        if (data) setCategories(data);
+        if (data) {
+            setCategories(data);
 
-        // Fallback improvisado se não houver categorias (apenas para demo funcionar sem seed)
+            // Auto-migration: Check if 'Saúde' exists for expense, if not, create it
+            if (type === 'expense' && !data.find(c => c.name === 'Saúde')) {
+                await supabase.from('categories').insert({
+                    user_id: user?.id,
+                    name: 'Saúde',
+                    type: 'expense'
+                });
+                // Refresh
+                fetchCategories();
+                return;
+            }
+        }
+
         if (!data || data.length === 0) {
-            // Poderia criar categorias on-the-fly aqui, mas vou deixar vazio por enquanto
-            // e sugerir a criação no UI se for critico.
-            // Ou melhor, vou inserir categorias padrão agora.
             await seedCategories();
         }
     };
 
     const seedCategories = async () => {
         const defaultCategories = type === 'expense'
-            ? ['Alimentação', 'Transporte', 'Moradia', 'Lazer']
+            ? ['Alimentação', 'Transporte', 'Moradia', 'Lazer', 'Saúde']
             : ['Salário', 'Freelance', 'Investimentos'];
 
         const inserts = defaultCategories.map(name => ({
@@ -71,13 +75,30 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
         if (data) setCategories(data);
     }
 
+    // Currency Mask Logic
+    const formatCurrency = (value: string) => {
+        // Remove non-digits
+        const digits = value.replace(/\D/g, '');
+        // Convert to cents
+        const amount = Number(digits) / 100;
+        // Format as BRL
+        return amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    };
+
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value.replace(/\D/g, '');
+        setAmount(value);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
+        const floatAmount = Number(amount) / 100;
+
         const { error } = await supabase.from('transactions').insert({
             user_id: user?.id,
-            amount: parseFloat(amount),
+            amount: floatAmount,
             type,
             category_id: categoryId,
             description,
@@ -142,13 +163,13 @@ export const TransactionModal = ({ isOpen, onClose, onSuccess }: TransactionModa
 
                     <div className="space-y-4">
                         <div className="relative">
-                            <DollarSign className="absolute left-3 top-3.5 text-slate-500" size={18} />
+                            <span className="absolute left-3 top-3.5 text-slate-500 font-bold">R$</span>
                             <input
-                                type="number"
-                                step="0.01"
+                                type="text"
+                                inputMode="numeric"
                                 placeholder="0,00"
-                                value={amount}
-                                onChange={e => setAmount(e.target.value)}
+                                value={amount ? (Number(amount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
+                                onChange={handleAmountChange}
                                 className="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-4 text-white focus:outline-none focus:border-purple-500 transition-colors"
                                 required
                             />
