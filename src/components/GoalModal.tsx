@@ -74,7 +74,35 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
     }
   };
 
-  // ... (render)
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-[#1e293b]/90 backdrop-blur-md border border-white/10 rounded-2xl shadow-2xl animate-fade-in">
+        <div className="flex items-center justify-between p-6 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div className={`p-2 rounded-lg bg-[${color}]/20`} style={{ color: color }}>
+              <Target size={24} />
+            </div>
+            <h2 className="text-xl font-bold text-white">
+              {goal ? 'Editar Meta' : 'Nova Meta'}
+            </h2>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+            <X size={24} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Título</label>
+            <input
+              type="text"
+              required
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all placeholder:text-slate-600"
+              placeholder="Ex: Viagem para Europa"
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -93,7 +121,7 @@ export function GoalModal({ onClose, onSuccess, goal }: GoalModalProps) {
               <label className="block text-sm font-medium text-slate-300 mb-1">Guardado (R$)</label>
               <input
                 type="text"
-                 inputMode="numeric"
+                inputMode="numeric"
                 value={currentAmount ? (Number(currentAmount) / 100).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : ''}
                 onChange={handleAmountChange(setCurrentAmount)}
                 className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
